@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import SmallCarousel from "@/components/uiManager/SmallCarousel";
 import ItemTable from "@/components/ItemTable";
-import UIService from "@/api/Ui";
 import Banner from "@/components/FigureLinkBox/Banner";
 import { useGetUI } from "@/api/useUIService";
 
@@ -14,7 +13,7 @@ interface dataType {
   price: number;
 }
 
-interface bannerType {
+interface bannerDataType {
   _id: string;
   imgSrc: string;
   alt: string;
@@ -24,17 +23,30 @@ interface bannerType {
   aspectRatio: string;
 }
 
+interface bannerType {
+  Banner: bannerDataType[];
+  BannerLabels: string[];
+}
+
 interface bannerItemsType {
   BannerItems: dataType[];
-  Banner: bannerType[];
   ColumnLabels: string[];
-  BannerLabels: string[];
 }
 
 const BannerItems = () => {
   const [prevShow, setPrevShow] = useState(false);
 
-  const { data, isLoading, isError } = useGetUI<bannerItemsType>("bannerItems");
+  const {
+    data: bannerData,
+    isLoading: bannerLoading,
+    isError: bannerError,
+  } = useGetUI<bannerType>("banner");
+
+  const {
+    data: bannerItemsData,
+    isLoading: bannerItemsLoading,
+    isError: bannerItemsError,
+  } = useGetUI<bannerItemsType>("bannerItems");
 
   const ItemInitialObject = {
     _id: "",
@@ -54,15 +66,15 @@ const BannerItems = () => {
     aspectRatio: "",
   };
 
-  if (isLoading) {
+  if (bannerLoading || bannerItemsLoading) {
     return <div>Loading...</div>;
   }
 
-  if (isError) {
+  if (bannerError || bannerItemsError) {
     return <div>데이터 가져오다 에러</div>;
   }
 
-  if (!data) {
+  if (!bannerData || !bannerItemsData) {
     return <div>데이터가 없는 경우</div>;
   }
 
@@ -76,23 +88,25 @@ const BannerItems = () => {
       </button>
       {prevShow && (
         <>
-          {data.Banner.length > 0 && <Banner data={data.Banner[0]} />}
-          <SmallCarousel data={data.BannerItems} />
+          {bannerData.Banner.length > 0 && (
+            <Banner data={bannerData.Banner[0]} />
+          )}
+          <SmallCarousel data={bannerItemsData.BannerItems} />
         </>
       )}
 
       <div className="flex flex-col gap-[2rem]">
         <span>Banner </span>
-        <ItemTable<bannerType>
-          columnLabels={data.BannerLabels}
-          data={data.Banner}
+        <ItemTable<bannerDataType>
+          columnLabels={bannerData.BannerLabels}
+          data={bannerData.Banner}
           category="banner"
           initialValue={BannerInitialObject}
         />
         <span> Items </span>
         <ItemTable<dataType>
-          columnLabels={data.ColumnLabels}
-          data={data.BannerItems}
+          columnLabels={bannerItemsData.ColumnLabels}
+          data={bannerItemsData.BannerItems}
           category="bannerItems"
           initialValue={ItemInitialObject}
         />

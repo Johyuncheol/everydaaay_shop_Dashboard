@@ -19,11 +19,7 @@ export function useUpdateData() {
       return area;
     },
     onSuccess: async (area) => {
-      // 예외 쿼리키 하드코딩 문제 해결할 것 
-      if (area) {
-        if (area === "banner") area = "bannerItems";
-        queryClient.invalidateQueries({ queryKey: [area] });
-      }
+      queryClient.invalidateQueries({ queryKey: [area] });
     },
   });
 
