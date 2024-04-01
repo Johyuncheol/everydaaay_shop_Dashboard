@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import SmallCarousel from "@/components/uiManager/SmallCarousel";
 import ItemTable from "@/components/ItemTable";
-import { getMainUIAPI } from "@/api/Ui";
+import UIService from "@/api/Ui";
 import Banner from "@/components/FigureLinkBox/Banner";
+import { useGetUI } from "@/api/useUIService";
 
 interface dataType {
   _id: string;
@@ -33,6 +34,8 @@ interface bannerItemsType {
 const BannerItems = () => {
   const [prevShow, setPrevShow] = useState(false);
 
+  const { data, isLoading, isError } = useGetUI<bannerItemsType>("bannerItems");
+
   const ItemInitialObject = {
     _id: "",
     imgSrc: "",
@@ -50,21 +53,18 @@ const BannerItems = () => {
     widthRatio: "",
     aspectRatio: "",
   };
-  const [data, setData] = useState<bannerItemsType>({
-    BannerItems: [],
-    Banner: [],
-    ColumnLabels: [],
-    BannerLabels: [],
-  });
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const res = await getMainUIAPI("bannerItems");
-      setData(res);
-    };
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
-    fetchData();
-  }, []);
+  if (isError) {
+    return <div>데이터 가져오다 에러</div>;
+  }
+
+  if (!data) {
+    return <div>데이터가 없는 경우</div>;
+  }
 
   return (
     <div>

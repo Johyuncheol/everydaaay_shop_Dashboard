@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import MainNav from "@/components/uiManager/MainNav";
 import ItemTable from "@/components/ItemTable";
-import { getMainUIAPI } from "@/api/Ui";
+import { useGetUI } from "@/api/useUIService";
 
 interface dataType {
   imgSrc: string;
@@ -18,27 +18,29 @@ interface MainNavType {
 
 const MainNavInfo = () => {
   const [prevShow, setPrevShow] = useState(false);
+
+  const { data, isLoading, isError } = useGetUI<MainNavType>("mainNav");
+
   const initialObject = {
     imgSrc: "",
     alt: "",
     detail: "",
     linkSrc: "",
     widthRatio: "",
-    aspectRatio: ""
+    aspectRatio: "",
   };
-  const [data, setData] = useState<MainNavType>({
-    MainNav: [],
-    ColumnLabels: [],
-  });
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const res = await getMainUIAPI("mainNav");
-      setData(res);
-    };
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
-    fetchData();
-  }, []);
+  if (isError) {
+    return <div>데이터 가져오다 에러</div>;
+  }
+
+  if (!data) {
+    return <div>데이터가 없는 경우</div>;
+  }
 
   return (
     <div>

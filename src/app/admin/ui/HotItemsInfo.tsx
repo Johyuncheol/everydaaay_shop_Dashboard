@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import SmallCarousel from "@/components/uiManager/SmallCarousel";
 import ItemTable from "@/components/ItemTable";
-import { getMainUIAPI } from "@/api/Ui";
+import UIService from "@/api/Ui";
+import { useGetUI } from "@/api/useUIService";
 
 interface dataType {
   _id: string;
@@ -18,6 +19,7 @@ interface HotItemsType {
 
 const HotItemsInfo = () => {
   const [prevShow, setPrevShow] = useState(false);
+  const { data, isLoading, isError } = useGetUI<HotItemsType>("hotItems");
 
   const initialObject = {
     _id: "",
@@ -28,19 +30,17 @@ const HotItemsInfo = () => {
     price: 0,
   };
 
-  const [data, setData] = useState<HotItemsType>({
-    HotItems: [],
-    ColumnLabels: [],
-  });
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const res = await getMainUIAPI("hotItems");
-      setData(res);
-    };
+  if (isError) {
+    return <div>데이터 가져오다 에러</div>;
+  }
 
-    fetchData();
-  }, []);
+  if (!data) {
+    return <div>데이터가 없는 경우</div>;
+  }
 
   return (
     <div>

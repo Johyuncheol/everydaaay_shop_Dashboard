@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import SmallCarousel from "@/components/uiManager/SmallCarousel";
 import ItemTable from "@/components/ItemTable";
-import { getMainUIAPI } from "@/api/Ui";
+import UIService from "@/api/Ui";
 
 interface dataType {
   _id: string;
@@ -35,7 +35,7 @@ const RecommendInfo = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const res = await getMainUIAPI("recommend");
+      const res = await UIService.getUIData("recommend");
       setData(res);
     };
 

@@ -1,75 +1,77 @@
 import { BASE_URL } from "./const";
 
-export const getMainUIAPI = async (area: string) => {
-  try {
-    const response = await fetch(`${BASE_URL}/main/dashboard/?area=${area}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        // 추가적인 헤더가 필요하다면 여기에 추가할 수 있습니다.
-      },
-    });
-    if (response.ok) {
-      const data = await response.json();
-      console.log(data);
-      return data.data;
-    } else {
-      throw new Error("Failed to fetch main data");
-    }
-  } catch (error) {
-    console.error("Error fetching main data:", error);
-    throw error;
+class UIService {
+  private baseURL: string;
+
+  constructor(baseURL: string) {
+    this.baseURL = baseURL;
   }
-};
 
-export const updateMainUIAPI = async (
-  area: string,
-  data: Record<string, any>
-) => {
-  try {
-    const response = await fetch(`${BASE_URL}/main/dashboard/?area=${area}`, {
-      method: "POST",
-      body: JSON.stringify(data),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+  private async request(
+    endpoint: string,
+    method: string,
+    data?: Record<string, any>
+  ) {
+    try {
+      const response = await fetch(`${this.baseURL}${endpoint}`, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: data ? JSON.stringify(data) : undefined,
+      });
 
-    if (response.ok) {
-      const data = await response.json();
-      alert(data.message);
-      return data.data;
-    } else {
-      throw new Error(`Failed to updata ${area} data`);
+      if (!response.ok) {
+        throw new Error(`Failed to ${method.toLowerCase()} ${endpoint}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error(`Error ${method.toLowerCase()} ${endpoint}:`, error);
+      throw error;
     }
-  } catch (error) {
-    console.error(`Error update ${area} data:`, error);
-    throw error;
   }
-};
 
-export const deleteMainUIAPI = async (
-  area: string,
-  data: Record<number, string>
-) => {
-  try {
-    const response = await fetch(`${BASE_URL}/main/dashboard/?area=${area}`, {
-      method: "DELETE",
-      body: JSON.stringify(data),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      alert(data.message);
-      return data.data;
-    } else {
-      throw new Error(`Failed to updata ${area} data`);
+  async getUIData(area: string) {
+    try {
+      const response = await this.request(
+        `/main/dashboard/?area=${area}`,
+        "GET"
+      );
+      console.log(response);
+      return response.data;
+    } catch (error) {
+      throw error;
     }
-  } catch (error) {
-    console.error(`Error update ${area} data:`, error);
-    throw error;
   }
-};
+
+  async updateUIData(area: string, data: Record<string, any>) {
+    try {
+      const response = await this.request(
+        `/main/dashboard/?area=${area}`,
+        "POST",
+        data
+      );
+      alert(response.message);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async deleteUIData(area: string, data: Record<number, string>) {
+    try {
+      const response = await this.request(
+        `/main/dashboard/?area=${area}`,
+        "DELETE",
+        data
+      );
+      alert(response.message);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+}
+
+export default new UIService(BASE_URL as string);

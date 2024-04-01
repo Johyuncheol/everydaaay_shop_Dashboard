@@ -1,9 +1,8 @@
-import Link from "next/link";
 import React, { Children, useEffect, useState } from "react";
 import EditModal from "../Modal/EditModal";
 import useOpen from "@/hooks/useOpen";
-import { updateMainUIAPI } from "@/api/Ui";
-import { deleteMainUIAPI } from "@/api/Ui";
+import UIService from "@/api/Ui";
+import { useUpdateData } from "@/api/useUIService";
 
 interface CarouselTableCardProps<T> {
   data: T[];
@@ -32,12 +31,12 @@ const ItemTable = <T extends Record<string, any>>({
     );
 
     setNowPageData(data.slice(0, nums * nowPage));
-  }, [data]);
+  }, [data, nowPage]);
 
   useEffect(() => {
     setNowPageData(data.slice(nums * (nowPage - 1), nums * nowPage));
-    setCheckedItems({})
-  }, [nowPage]);
+    setCheckedItems({});
+  }, [data, nowPage]);
 
   const [nowData, setNowData] = useState<T>(initialValue);
 
@@ -56,13 +55,16 @@ const ItemTable = <T extends Record<string, any>>({
     handleClick();
   };
 
+  const updateDataMutation = useUpdateData();
+
   const handleSubmit = async (values: T) => {
     for (const key in values) {
       if (key !== "_id" && values[key] === "") {
         return false;
       }
     }
-    await updateMainUIAPI(category, values);
+    //await UIService.updateUIData(category, values);
+    await updateDataMutation.mutateAsync({ area: category, data: values });
   };
 
   const ChangeCheckBox = async (
@@ -92,7 +94,7 @@ const ItemTable = <T extends Record<string, any>>({
   };
 
   const HandleDelete = async () => {
-    const res = await deleteMainUIAPI(category, checkedItems);
+    const res = await UIService.deleteUIData(category, checkedItems);
   };
 
   return (
